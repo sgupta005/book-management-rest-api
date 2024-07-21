@@ -9,6 +9,7 @@ const _config = {
   sessionSecret: process.env.SESSION_SECRET,
   mongodbUri: process.env.MONGODB_URI,
   dbName: process.env.DB_NAME,
+  corsOrigin: process.env.CORS_ORIGIN,
 };
 
 export const config = Object.freeze(_config);
