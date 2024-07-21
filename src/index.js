@@ -1,3 +1,6 @@
 import startServer from './app.js';
+import connectDB from './db.js';
 
-startServer();
+connectDB()
+  .then(() => startServer())
+  .catch((err) => console.error('MONGODB CONNECTION FAILED: ', err));
