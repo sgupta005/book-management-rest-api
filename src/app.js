@@ -4,6 +4,7 @@ import globalErrorHandler from './middlewares/globalErrorHandler.js';
 import logger from './middlewares/logger.js';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import CustomError from './utils/CustomError.js';
 
 const app = express();
 app.use(
@@ -22,8 +23,10 @@ app.use(logger);
 
 //Default Route
 app.all('*', (req, res, next) => {
-  const err = new Error(`Can't find ${req.originalUrl} route on server`);
-  err.statusCode = 404;
+  const err = new CustomError(
+    `Can't find ${req.originalUrl} route on server`,
+    404
+  );
   next(err);
 });
 
