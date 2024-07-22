@@ -21,10 +21,13 @@ app.use(cookieParser());
 //Logger Middleware
 app.use(logger);
 
+import userRouter from './user/userRouter.js';
+app.use('/api/v1/users', userRouter);
+
 //Default Route
 app.all('*', (req, res, next) => {
   const err = new CustomError(
-    `Can't find ${req.originalUrl} route on server`,
+    `Can't find ${req.originalUrl} route for method ${req.method} on server`,
     404
   );
   next(err);
