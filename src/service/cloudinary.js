@@ -9,11 +9,11 @@ async function uploadOnCloudinary(localFilePath) {
     });
     console.log('File has been uploaded to cloudinary successfully');
     console.log(response.url);
-    return response;
+    return response.url;
   } catch (error) {
     fs.unlinkSync(localFilePath);
     return null;
   }
 }
 
-export { uploadOnCloudinary };
+export default uploadOnCloudinary;
