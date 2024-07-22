@@ -20,9 +20,8 @@ async function uploadOnCloudinary(localFilePath) {
     console.log(response.url);
     return response.url;
   } catch (error) {
-    throw new CustomError(error);
     fs.unlinkSync(localFilePath);
-    return null;
+    throw new CustomError(error);
   }
 }
 
