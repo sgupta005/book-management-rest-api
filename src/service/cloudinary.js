@@ -1,5 +1,13 @@
 import { v2 as cloudinary } from 'cloudinary';
 import fs from 'fs';
+import CustomError from '../utils/CustomError.js';
+import { config } from '../config.js';
+
+cloudinary.config({
+  cloud_name: config.cloudinaryCloudName,
+  api_key: config.cloudinaryApiKey,
+  api_secret: config.cloudinaryApiSecret,
+});
 
 async function uploadOnCloudinary(localFilePath) {
   try {
@@ -7,10 +15,12 @@ async function uploadOnCloudinary(localFilePath) {
     const response = await cloudinary.uploader.upload(localFilePath, {
       resource_type: 'auto',
     });
+    if (response.url) fs.unlinkSync(localFilePath);
     console.log('File has been uploaded to cloudinary successfully');
     console.log(response.url);
     return response.url;
   } catch (error) {
+    throw new CustomError(error);
     fs.unlinkSync(localFilePath);
     return null;
   }

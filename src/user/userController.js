@@ -3,9 +3,10 @@ import asyncHandler from '../utils/asyncHandler.js';
 import CustomError from '../utils/CustomError.js';
 import { User } from './userModel.js';
 import ApiResponse from '../utils/ApiResponse.js';
+import uploadOnCloudinary from '../service/cloudinary.js';
 
 const registerUser = asyncHandler(async (req, res, next) => {
-  const { email, fullname, avatar, password } = req.body;
+  const { email, fullname, password } = req.body;
 
   //validation
   const result = validationResult(req);
@@ -21,11 +22,15 @@ const registerUser = asyncHandler(async (req, res, next) => {
     throw new CustomError('User with that email already exists', 409);
   }
 
+  //Uploading avatar file to cloudinary
+  const localFilePath = req?.file?.path;
+  const avatar = localFilePath ? await uploadOnCloudinary(localFilePath) : '';
+
   //creating user
   const user = await User.create({
     email: email.toLowerCase(),
     fullname,
-    avatar: avatar ?? '',
+    avatar,
     password,
   });
 
