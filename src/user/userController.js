@@ -47,4 +47,48 @@ const registerUser = asyncHandler(async (req, res, next) => {
     .json(new ApiResponse(201, createdUser, 'User registered successfully'));
 });
 
-export { registerUser };
+const loginUser = asyncHandler(async (req, res, next) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    throw new CustomError(
+      'Both email and password are required to login.',
+      400
+    );
+  }
+
+  //checking if user with given email exists
+  const user = await User.findOne({ email });
+  if (!user)
+    throw new CustomError('No user could be found with that email.', 400);
+
+  //checking if password is correc
+  const isPasswordCorrect = user.isPasswordCorrect(password);
+  if (!isPasswordCorrect)
+    throw new CustomError('Please enter correct password', 400);
+
+  //creating refresh and access token and adding them to user object
+  const refreshToken = user.generateRefreshToken();
+  const accessToken = user.generateAccessToken();
+  user.refreshToken = refreshToken;
+  user.save({ validateBeforeSave: false });
+
+  const userDataToReturn = await User.find({ email }).select(
+    '-password -refreshToken'
+  );
+
+  //making sure that the cookie and can only be modified by the server and not client
+  const options = {
+    httpOnly: true,
+    secure: true,
+  };
+
+  return res
+    .status(200)
+    .cookie('accessToken', accessToken, options)
+    .cookie('refreshToken', refreshToken, options)
+    .json(
+      new ApiResponse(200, userDataToReturn, 'User logged in successfully.')
+    );
+});
+
+export { registerUser, loginUser };

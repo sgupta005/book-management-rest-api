@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { registerUser } from './userController.js';
+import { loginUser, registerUser } from './userController.js';
 import { checkSchema } from 'express-validator';
 import { userValidationSchema } from './userValidationSchema.js';
 import { upload } from '../middlewares/multer.js';
@@ -12,5 +12,7 @@ userRouter.post(
   checkSchema(userValidationSchema),
   registerUser
 );
+
+userRouter.post('/login', loginUser);
 
 export default userRouter;
