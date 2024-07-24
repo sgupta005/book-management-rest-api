@@ -1,5 +1,10 @@
 import { Router } from 'express';
-import { loginUser, logoutUser, registerUser } from './userController.js';
+import {
+  loginUser,
+  logoutUser,
+  refreshAccessToken,
+  registerUser,
+} from './userController.js';
 import { checkSchema } from 'express-validator';
 import { userValidationSchema } from './userValidationSchema.js';
 import { upload } from '../middlewares/multer.js';
@@ -18,5 +23,6 @@ userRouter.post('/login', loginUser);
 
 //Authorized Routed
 userRouter.post('/logout', verifyJwt, logoutUser);
+userRouter.post('/refresh-token', refreshAccessToken);
 
 export default userRouter;

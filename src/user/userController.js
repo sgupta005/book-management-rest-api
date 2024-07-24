@@ -4,6 +4,21 @@ import CustomError from '../utils/CustomError.js';
 import { User } from './userModel.js';
 import ApiResponse from '../utils/ApiResponse.js';
 import uploadOnCloudinary from '../service/cloudinary.js';
+import { config } from '../config.js';
+
+//making sure that the cookie and can only be modified by the server and not client
+const options = {
+  httpOnly: true,
+  secure: true,
+};
+
+function generateAccessAndRefreshToken(user) {
+  const refreshToken = user.generateRefreshToken();
+  const accessToken = user.generateAccessToken();
+  user.refreshToken = refreshToken;
+  user.save({ validateBeforeSave: false });
+  return { accessToken, refreshToken };
+}
 
 const registerUser = asyncHandler(async (req, res, next) => {
   const { email, fullname, password } = req.body;
@@ -67,20 +82,11 @@ const loginUser = asyncHandler(async (req, res, next) => {
     throw new CustomError('Please enter correct password', 400);
 
   //creating refresh and access token and adding them to user object
-  const refreshToken = user.generateRefreshToken();
-  const accessToken = user.generateAccessToken();
-  user.refreshToken = refreshToken;
-  user.save({ validateBeforeSave: false });
+  const { accessToken, refreshToken } = generateAccessAndRefreshToken(user);
 
   const userDataToReturn = await User.find({ email }).select(
     '-password -refreshToken'
   );
-
-  //making sure that the cookie and can only be modified by the server and not client
-  const options = {
-    httpOnly: true,
-    secure: true,
-  };
 
   return res
     .status(200)
@@ -99,11 +105,6 @@ const logoutUser = asyncHandler(async (req, res, next) => {
     { new: true }
   );
 
-  const options = {
-    httpOnly: true,
-    secure: true,
-  };
-
   return res
     .status(200)
     .clearCookie('accessToken', options)
@@ -111,4 +112,38 @@ const logoutUser = asyncHandler(async (req, res, next) => {
     .json(new ApiResponse(200, {}, 'User logged out successfully.'));
 });
 
-export { registerUser, loginUser, logoutUser };
+const refreshAccessToken = asyncHandler(async (req, res, next) => {
+  //getting refresh token from client
+  const incomingRefreshToken =
+    req.cookies?.refreshToken || req.body?.refreshToken;
+  if (!incomingRefreshToken)
+    throw new CustomError('No refresh token found.', 401);
+
+  //decoding client's refresh token and using it to find requested user from db
+  const decodedIncomingRefreshToken = jwt.verify(
+    incomingRefreshToken,
+    config.refreshTokenSecret
+  );
+  const user = await User.findById(decodedIncomingRefreshToken?._id);
+  if (!user) throw new CustomError('Invalid refresh token.', 401);
+
+  //checking if client's refresh token is same as the one stored in db
+  if (incomingRefreshToken !== user?.refreshToken)
+    throw new CustomError('Invalid or expired refresh token.', 401);
+
+  const { accessToken, refreshToken } = generateAccessAndRefreshToken(user);
+
+  return res
+    .status(200)
+    .cookie('accessToken', accessToken, options)
+    .cookie('refreshToken', refreshToken, options)
+    .json(
+      new ApiResponse(
+        200,
+        { accessToken, refreshToken },
+        'Access token refreshed.'
+      )
+    );
+});
+
+export { registerUser, loginUser, logoutUser, refreshAccessToken };
