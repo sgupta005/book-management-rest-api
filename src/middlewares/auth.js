@@ -1,7 +1,7 @@
-import { config } from '../config';
-import { User } from '../user/userModel';
-import asyncHandler from '../utils/asyncHandler';
-import CustomError from '../utils/CustomError';
+import { config } from '../config.js';
+import { User } from '../user/userModel.js';
+import asyncHandler from '../utils/asyncHandler.js';
+import CustomError from '../utils/CustomError.js';
 import jwt from 'jsonwebtoken';
 
 const verifyJwt = asyncHandler(async (req, _, next) => {
