@@ -5,6 +5,7 @@ import { User } from './userModel.js';
 import ApiResponse from '../utils/ApiResponse.js';
 import uploadOnCloudinary from '../service/cloudinary.js';
 import { config } from '../config.js';
+import jwt from 'jsonwebtoken';
 
 //making sure that the cookie and can only be modified by the server and not client
 const options = {
