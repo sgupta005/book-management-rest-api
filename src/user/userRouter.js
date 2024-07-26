@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import {
+  getCurrentUser,
   loginUser,
   logoutUser,
   refreshAccessToken,
@@ -22,6 +23,7 @@ userRouter.post(
 userRouter.post('/login', loginUser);
 
 //Authorized Routed
+userRouter.get('/current-user', verifyJwt, getCurrentUser);
 userRouter.post('/logout', verifyJwt, logoutUser);
 userRouter.post('/refresh-token', refreshAccessToken);
 

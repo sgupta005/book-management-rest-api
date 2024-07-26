@@ -21,6 +21,10 @@ function generateAccessAndRefreshToken(user) {
   return { accessToken, refreshToken };
 }
 
+const getCurrentUser = asyncHandler(async (req, res, next) => {
+  return res.status(200).json(new ApiResponse(200, req.user));
+});
+
 const registerUser = asyncHandler(async (req, res, next) => {
   const { email, fullname, password } = req.body;
 
@@ -147,4 +151,10 @@ const refreshAccessToken = asyncHandler(async (req, res, next) => {
     );
 });
 
-export { registerUser, loginUser, logoutUser, refreshAccessToken };
+export {
+  getCurrentUser,
+  registerUser,
+  loginUser,
+  logoutUser,
+  refreshAccessToken,
+};
