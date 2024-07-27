@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import {
+  changeAccountDetails,
   changePassword,
   getCurrentUser,
   loginUser,
@@ -28,5 +29,6 @@ userRouter.get('/current-user', verifyJwt, getCurrentUser);
 userRouter.post('/logout', verifyJwt, logoutUser);
 userRouter.post('/refresh-token', refreshAccessToken);
 userRouter.post('/change-password', verifyJwt, changePassword);
+userRouter.post('/change-details', verifyJwt, changeAccountDetails);
 
 export default userRouter;

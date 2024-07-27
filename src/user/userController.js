@@ -168,6 +168,25 @@ const changePassword = asyncHandler(async (req, res, next) => {
     .json(new ApiResponse(200, {}, 'Password changed successfully.'));
 });
 
+const changeAccountDetails = asyncHandler(async (req, res, next) => {
+  const { email, fullname } = req.body;
+  if (!email || !fullname)
+    return CustomError(400, 'Both email and fullname are required.');
+
+  const user = req.user;
+  user.fullname = fullname;
+  user.email = email;
+  user.save();
+
+  const {
+    _doc: { password, ...userDataToReturn },
+  } = user;
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, userDataToReturn, 'User updated successfully.'));
+});
+
 export {
   getCurrentUser,
   registerUser,
@@ -175,4 +194,5 @@ export {
   logoutUser,
   refreshAccessToken,
   changePassword,
+  changeAccountDetails,
 };
