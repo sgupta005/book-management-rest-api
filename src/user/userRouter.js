@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {
   changeAccountDetails,
+  changeAvatar,
   changePassword,
   getCurrentUser,
   loginUser,
@@ -28,7 +29,8 @@ userRouter.post('/login', loginUser);
 userRouter.get('/current-user', verifyJwt, getCurrentUser);
 userRouter.post('/logout', verifyJwt, logoutUser);
 userRouter.post('/refresh-token', refreshAccessToken);
-userRouter.post('/change-password', verifyJwt, changePassword);
 userRouter.post('/change-details', verifyJwt, changeAccountDetails);
+userRouter.post('/change-password', verifyJwt, changePassword);
+userRouter.post('/change-avatar', verifyJwt, changeAvatar);
 
 export default userRouter;

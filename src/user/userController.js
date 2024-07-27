@@ -171,12 +171,12 @@ const changePassword = asyncHandler(async (req, res, next) => {
 const changeAccountDetails = asyncHandler(async (req, res, next) => {
   const { email, fullname } = req.body;
   if (!email || !fullname)
-    return CustomError(400, 'Both email and fullname are required.');
+    throw new CustomError(400, 'Both email and fullname are required.');
 
   const user = req.user;
   user.fullname = fullname;
   user.email = email;
-  user.save();
+  await user.save();
 
   const {
     _doc: { password, ...userDataToReturn },
@@ -187,12 +187,38 @@ const changeAccountDetails = asyncHandler(async (req, res, next) => {
     .json(new ApiResponse(200, userDataToReturn, 'User updated successfully.'));
 });
 
+const changeAvatar = asyncHandler(async (req, res, next) => {
+  const localFilePath = req?.file?.path;
+  if (!localFilePath) throw new CustomError('No file path was provided.', 400);
+
+  const avatarUrl = await uploadOnCloudinary(localFilePath);
+  if (!avatarUrl)
+    throw new CustomError(
+      'An error occured while uploading the file to cloudinary.'
+    );
+
+  const user = req.user;
+  user.avatar = avatarUrl;
+  await user.save();
+
+  const {
+    _doc: { password, ...userDataToReturn },
+  } = user;
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, userDataToReturn, 'Avatar updated successfully.')
+    );
+});
+
 export {
   getCurrentUser,
   registerUser,
   loginUser,
   logoutUser,
   refreshAccessToken,
-  changePassword,
   changeAccountDetails,
+  changePassword,
+  changeAvatar,
 };
