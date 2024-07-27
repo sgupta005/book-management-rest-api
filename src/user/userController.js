@@ -83,7 +83,6 @@ const loginUser = asyncHandler(async (req, res, next) => {
 
   //checking if password is correc
   const isPasswordCorrect = await user.isPasswordCorrect(password);
-  console.log(user.isPasswordCorrect(password));
   if (!isPasswordCorrect)
     throw new CustomError('Please enter correct password', 400);
 
@@ -155,16 +154,14 @@ const refreshAccessToken = asyncHandler(async (req, res, next) => {
 const changePassword = asyncHandler(async (req, res, next) => {
   const { oldPassword, newPassword } = req.body;
   if (!newPassword) throw new CustomError('New password is required.', 400);
+
   const user = req.user;
-  const userFormDb = await User.findById(user.id);
-  console.log(user);
-  console.log(userFormDb);
 
-  // const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
-  // if (!isPasswordCorrect) throw new CustomError('Incorrect password', 401);
+  const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
+  if (!isPasswordCorrect) throw new CustomError('Incorrect password', 401);
 
-  // user.password = newPassword;
-  // await user.save({ validateBeforeSave: false });
+  user.password = newPassword;
+  await user.save({ validateBeforeSave: false });
 
   return res
     .status(200)
